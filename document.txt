@@ -14,6 +14,6 @@ mutq <- variable
 elq -> any thing, [string], <char>
 ete (condition)
 cikl (condition)
-գործողություններ վերագրելիս պետք է օգտագործել փակագծեր
-սահմանված գործողություններն են՝ +, -, *, /, %
-
+Brackets should be used when assigning actions
+defined actions are: +, -, *, /,%
+My language supports .ml files
