@@ -1,0 +1,19 @@
+tivI -> int
+tivD -> double
+sim -> char -> <>
+bul -> bool
+ete -> if
+cikl -> while
+mutq -> cin
+elq -> cout
+
+///// syntax ////
+type variable = any thing
+type variable
+mutq <- variable
+elq -> any thing, [string], <char>
+ete (condition)
+cikl (condition)
+գործողություններ վերագրելիս պետք է օգտագործել փակագծեր
+սահմանված գործողություններն են՝ +, -, *, /, %
+
