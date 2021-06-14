@@ -12,6 +12,10 @@ Parser::Parser(const char* str) : m_fstr {str}
     int count = 0;
     while(std::getline(m_fstr, m_str)) {
         if (m_str.find("#") == 0) continue;
+        std::size_t found = m_str.find("#");
+        if (found!=std::string::npos) {
+            m_str = m_str.substr (0, found);
+        }
         if (m_str == "") continue;
         if (m_str.find ("ete") == 0 || m_str.find ("cikl") == 0) {
             temprorybool = true;
