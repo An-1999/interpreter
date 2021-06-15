@@ -76,7 +76,7 @@ void Parser::parsTemproryIfOrFor(int& index)
         pars_token();
         if (m_token[0] != "<-") {
             if (m_token[0] == "ete") {
-                if (condition()) {
+                if (condition(false)) {
                     m_token.clear();
                     ++index;
                     parsTemproryIfOrFor(index);
@@ -86,8 +86,8 @@ void Parser::parsTemproryIfOrFor(int& index)
                 m_token.clear();
             } else if (m_token[0] == "cikl") {
                     int index1 = index;
-                if (condition()) {
-                    while (condition()) {
+                if (condition(false)) {
+                    while (condition(false)) {
                         m_token.clear();
                         index = index1 + 1;
                         parsTemproryIfOrFor(index);
@@ -366,6 +366,9 @@ std::string Parser::calculate(const char signOfAction, std::string nameRvalu1, s
     } else if (haveVariable(nameRvalu1)) {
         std::string current = getValueHaveVariable(nameRvalu1);
         current1 = std::stod(rightValu("tivD", current, temp));
+    } else if (!temp && haveVariableInStaticVector(nameRvalu1)) {
+        std::string current = getValueHaveVariableStatic(nameRvalu1);
+        current1 = std::stod(rightValu("tivD", current, temp));
     } else {
         std::cout << "an unknown variable has been displayed" << std::endl;
         abort();
@@ -379,6 +382,9 @@ std::string Parser::calculate(const char signOfAction, std::string nameRvalu1, s
     } else if (haveVariable(nameRvalu2)) {
         std::string current = getValueHaveVariable(nameRvalu2);
         current2 = std::stod(rightValu("tivD", current, temp));
+    }  else if (!temp && haveVariableInStaticVector(nameRvalu1)) {
+        std::string current = getValueHaveVariableStatic(nameRvalu1);
+        current1 = std::stod(rightValu("tivD", current, temp));
     } else {
         std::cout << "an unknown variable has been displayed" << std::endl;
         abort();
@@ -424,21 +430,21 @@ int Parser::indexCloseScope(int indexOpenScope)
     return -1;
 }
 
-std::string Parser::operation(int index)
+std::string Parser::operation(int index, bool temp)
 {
     if (m_token[index + 1] == "(") {
         int first = indexCloseScope(index + 1);
         std::string second = m_token[first + 2];
         if (m_token[first + 2] == "(") {
-            second = operation(first + 2);
+            second = operation(first + 2, temp);
         }
-        return calculate (m_token[first + 1][0], operation(index + 1), second);
+        return calculate (m_token[first + 1][0], operation(index + 1, temp), second, temp);
     } else {
         std::string second = m_token[index + 3];
         if (m_token[index + 3] == "(") {
-            second = operation(index + 3);
+            second = operation(index + 3, temp);
         }
-        return calculate(m_token[index + 2][0], m_token[index + 1], second);
+        return calculate(m_token[index + 2][0], m_token[index + 1], second, temp);
     }
 }
 
@@ -453,6 +459,8 @@ double Parser::helpExpression(std::string str, bool temp) {
     } else if (str[0] == '<' && str[2] == '>') {
         current = str[1];
     } else if (haveVariable(str)) {
+        current = std::stod(rightValu("tivD", str, temp));
+    } else if (!temp && haveVariableInStaticVector(str)) {
         current = std::stod(rightValu("tivD", str, temp));
     } else {
         std::cout << "unknown variable" << std::endl;
@@ -512,7 +520,7 @@ void Parser::output(bool temp)
     } else if (isNumberI(m_token[2]) || isNumberD(m_token[2])) {
         std::cout << m_token[2] << std::endl;
     } else if (m_token[2] == "(") {
-            std::cout << operation(2) << std::endl;
+            std::cout << operation(2, temp) << std::endl;
             if (indexCloseScope(2) + 1 < m_token.size()) {
                 std::cout << "inappropriate value" << std::endl;
                 abort();
@@ -562,7 +570,7 @@ void Parser::variableStatement(bool temp)
         v.value = " ";
     } else if (m_token[2] == "=") {
         if (m_token[3] == "(") {
-            v.value = rightValu(v.type, operation(3), temp);
+            v.value = rightValu(v.type, operation(3, temp), temp);
             if (indexCloseScope(3) + 1 < m_token.size()) {
                 std::cout << "inappropriate value" << std::endl;
                 abort();
@@ -587,16 +595,13 @@ void Parser::variableStatement(bool temp)
 
 void Parser::withoutTypeVariable(bool temp)
 {
-    if (!haveVariable(m_token[0])) {
+    if (!haveVariable(m_token[0]) && (!temp && !haveVariableInStaticVector(m_token[0]))){
         std::cout << "undeclared variable" << std::endl;
-        abort();
-    } else if (!temp && haveVariableInStaticVector(m_token[1])) {
-        std::cout << "Repetition of variable name" << std::endl;
         abort();
     }
     if (m_token[1] == "=") {
         if (m_token[2] == "(") {
-            std::string temprory = operation(2);
+            std::string temprory = operation(2, temp);
             changeValue (m_token[0], temprory, temp);
         } else {
             changeValue (m_token[0], m_token[2], temp);
@@ -642,22 +647,22 @@ bool Parser::condition(bool temp)
         return false;
     } if (!indexOperations) {
         if (m_token[2] != "(") {
-            if (std::stod(operation(1))) { return true; }
+            if (std::stod(operation(1, temp))) { return true; }
             return false;
         } else {
-            if (std::stod(operation(2))) { return true; }
+            if (std::stod(operation(2, temp))) { return true; }
             return false;
         }
     } else {
         std::string first = m_token[2];
         std::string second = m_token[indexOperations + 1];
         if (indexOperations > 3) {
-            first = operation(2);
+            first = operation(2, temp);
         }
         if (m_token[indexOperations + 1] == "(") {
-            second = operation(indexOperations + 1);
+            second = operation(indexOperations + 1, temp);
         }
-        return expression (first, m_token[indexOperations], second);
+        return expression (first, m_token[indexOperations], second, temp);
     }
 }
 
