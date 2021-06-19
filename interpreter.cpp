@@ -363,6 +363,8 @@ std::string Parser::calculate(const char signOfAction, std::string nameRvalu1, s
         current1 = 1;
     } else if (nameRvalu1 == "false") {
         current1 = 0;
+    }  else if (isSimbol(nameRvalu1)) {
+        current1 = nameRvalu1[1];
     } else if (haveVariable(nameRvalu1)) {
         std::string current = getValueHaveVariable(nameRvalu1);
         current1 = std::stod(rightValu("tivD", current, temp));
@@ -379,6 +381,8 @@ std::string Parser::calculate(const char signOfAction, std::string nameRvalu1, s
         current2 = 1;
     } else if (nameRvalu2 == "false") {
         current2 = 0;
+    } else if (isSimbol(nameRvalu2)) {
+        current2 = nameRvalu2[1];
     } else if (haveVariable(nameRvalu2)) {
         std::string current = getValueHaveVariable(nameRvalu2);
         current2 = std::stod(rightValu("tivD", current, temp));
