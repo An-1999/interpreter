@@ -1,3 +1,5 @@
+########example1########
+
 #tivI n
 #mutq <- n
 #
@@ -14,6 +16,9 @@
 #    elq -> 1
 #<-
 #elq -> s
+
+
+########example2########
 
 
 #tivI w
@@ -34,6 +39,8 @@
 #    i = (i + 1)
 # <-
 #
+
+########example3########
 
 tivI w
 mutq <- w
