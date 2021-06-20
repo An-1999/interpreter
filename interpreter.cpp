@@ -1,5 +1,5 @@
 #include <iostream>
-#include "interpreter.h"
+#include "interpreter1.h"
 
 std::vector<Variable> Parser::s_variable;
 
@@ -32,7 +32,7 @@ Parser::Parser(const char* str) : m_fstr {str}
                 conditionAndLoop();
             }
         } else {
-            pars();
+            pars(m_variable);
             m_token.clear();
         }
     }
@@ -58,7 +58,8 @@ void Parser::conditionAndLoop()
     pars_token();
     if (m_token[0] == "ete" || m_token[0] == "cikl") {
         int index = 0;
-        parsTemproryIfOrFor(index);
+        std::vector<Variable> t_variable;
+        parsTemproryIfOrFor(index, t_variable);
     } else {
         std::cout << "incomprehensible expression" << std::endl;
         abort();
@@ -68,7 +69,7 @@ void Parser::conditionAndLoop()
     temproryLine.clear();
 }
 
-void Parser::parsTemproryIfOrFor(int& index)
+void Parser::parsTemproryIfOrFor(int& index, std::vector<Variable>& t_variable)
 {
     while (index < temproryLine.size()) {
         m_token.clear();
@@ -77,9 +78,10 @@ void Parser::parsTemproryIfOrFor(int& index)
         if (m_token[0] != "<-") {
             if (m_token[0] == "ete") {
                 if (condition(false)) {
+                        std::vector<Variable> t_variable;
                     m_token.clear();
                     ++index;
-                    parsTemproryIfOrFor(index);
+                    parsTemproryIfOrFor(index, t_variable);
                 } else {
                     helpCoditionAndLoop(index);
                 }
@@ -88,9 +90,10 @@ void Parser::parsTemproryIfOrFor(int& index)
                     int index1 = index;
                 if (condition(false)) {
                     while (condition(false)) {
+                        std::vector<Variable> t_variable;
                         m_token.clear();
                         index = index1 + 1;
-                        parsTemproryIfOrFor(index);
+                        parsTemproryIfOrFor(index, t_variable);
                         m_token.clear();
                         m_str = temproryLine[index1];
                         pars_token();
@@ -101,13 +104,14 @@ void Parser::parsTemproryIfOrFor(int& index)
                 m_token.clear();
             } else {
                 m_token.clear();
-                pars(false);
+                pars(t_variable, false);
                 ++index;
                 m_token.clear();
             }
         } else {
             for (int i = 0; i < t_variable.size(); ++i) {
                 s_variable.pop_back();
+                t_variable.pop_back();
             }
             t_variable.clear();
             ++index;
@@ -227,6 +231,13 @@ void Parser::changeValue(const std::string& str_name, std::string& str_value, bo
     for (int i = 0; i < m_variable.size(); ++i) {
         if (m_variable[i].variable == str_name) {
             m_variable[i].value = rightValu(m_variable[i].type, str_value, temp);
+        }
+    }
+    if (!temp) {
+        for (int i = 0; i < s_variable.size(); ++i) {
+            if (s_variable[i].variable == str_name) {
+                s_variable[i].value = rightValu(s_variable[i].type, str_value, temp);
+            }
         }
     }
 }
@@ -363,7 +374,7 @@ std::string Parser::calculate(const char signOfAction, std::string nameRvalu1, s
         current1 = 1;
     } else if (nameRvalu1 == "false") {
         current1 = 0;
-    }  else if (isSimbol(nameRvalu1)) {
+    } else if (isSimbol(nameRvalu1)) {
         current1 = nameRvalu1[1];
     } else if (!temp && haveVariableInStaticVector(nameRvalu1)) {
         std::string current = getValueHaveVariableStatic(nameRvalu1);
@@ -558,10 +569,11 @@ void Parser::output(bool temp)
         }
     } else {
         std::cout << "an unknown variable has been displayed" << std::endl;
+        abort();
     }
 }
 
-void Parser::variableStatement(bool temp)
+void Parser::variableStatement(std::vector<Variable>& t_variable, bool temp)
 {
     if (temp && haveVariable (m_token[1])) {
         std::cout << "Repetition of variable name" << std::endl;
@@ -616,7 +628,7 @@ void Parser::withoutTypeVariable(bool temp)
     }
 }
 
-void Parser::pars(bool temp)
+void Parser::pars(std::vector<Variable>& t_variable, bool temp)
 {
     pars_token();
     if (m_token[0] == "mutq") {
@@ -624,7 +636,7 @@ void Parser::pars(bool temp)
     } else if (m_token[0] == "elq") {
         output(temp);
     } else if (isKey(m_token[0])) {
-        variableStatement(temp);
+        variableStatement(t_variable, temp);
     } else {
         withoutTypeVariable(temp);
     }
