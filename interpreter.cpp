@@ -272,11 +272,11 @@ std::string Parser::rightValu(const std::string& type, std::string value, bool t
             return "1";
         } else if (value == "false") {
             return "0";
-        } else if (haveVariable(value)) {
-            std::string current = getValueHaveVariable(value);
-            return rightValu (type, current, temp);
         } else if (!temp && haveVariableInStaticVector(value)) {
             std::string current = getValueHaveVariableStatic(value);
+            return rightValu (type, current, temp);
+        } else if (haveVariable(value)) {
+            std::string current = getValueHaveVariable(value);
             return rightValu (type, current, temp);
         } else {
             std::cout << "inappropriate value" << std::endl;
@@ -292,11 +292,11 @@ std::string Parser::rightValu(const std::string& type, std::string value, bool t
             return "1.000000";
         } else if (value == "false") {
             return "0.000000";
-        } else if (haveVariable(value)) {
-            std::string current = getValueHaveVariable(value);
-            return rightValu (type, current, temp);
         } else if (!temp && haveVariableInStaticVector(value)) {
             std::string current = getValueHaveVariableStatic(value);
+            return rightValu (type, current, temp);
+        } else if (haveVariable(value)) {
+            std::string current = getValueHaveVariable(value);
             return rightValu (type, current, temp);
         } else {
             std::cout << "inappropriate value" << std::endl;
@@ -315,11 +315,11 @@ std::string Parser::rightValu(const std::string& type, std::string value, bool t
             return "1";
         } else if (value == "false") {
             return "0";
-        } else if (haveVariable(value)) {
-            std::string current = getValueHaveVariable(value);
-            return rightValu (type, current, temp);
         } else if (!temp && haveVariableInStaticVector(value)) {
             std::string current = getValueHaveVariableStatic(value);
+            return rightValu (type, current, temp);
+        } else if (haveVariable(value)) {
+            std::string current = getValueHaveVariable(value);
             return rightValu (type, current, temp);
         } else {
             std::cout << "inappropriate value" << std::endl;
@@ -339,11 +339,11 @@ std::string Parser::rightValu(const std::string& type, std::string value, bool t
             char current = int(0);
             return std::string(1, current);
             return "0";
-        } else if (haveVariable(value)) {
-            std::string current = getValueHaveVariable(value);
-            return rightValu (type, current, temp);
         } else if (!temp && haveVariableInStaticVector(value)) {
             std::string current = getValueHaveVariableStatic(value);
+            return rightValu (type, current, temp);
+        } else if (haveVariable(value)) {
+            std::string current = getValueHaveVariable(value);
             return rightValu (type, current, temp);
         } else {
             std::cout << "inappropriate value" << std::endl;
@@ -365,11 +365,11 @@ std::string Parser::calculate(const char signOfAction, std::string nameRvalu1, s
         current1 = 0;
     }  else if (isSimbol(nameRvalu1)) {
         current1 = nameRvalu1[1];
-    } else if (haveVariable(nameRvalu1)) {
-        std::string current = getValueHaveVariable(nameRvalu1);
-        current1 = std::stod(rightValu("tivD", current, temp));
     } else if (!temp && haveVariableInStaticVector(nameRvalu1)) {
         std::string current = getValueHaveVariableStatic(nameRvalu1);
+        current1 = std::stod(rightValu("tivD", current, temp));
+    } else if (haveVariable(nameRvalu1)) {
+        std::string current = getValueHaveVariable(nameRvalu1);
         current1 = std::stod(rightValu("tivD", current, temp));
     } else {
         std::cout << "an unknown variable has been displayed" << std::endl;
@@ -383,12 +383,12 @@ std::string Parser::calculate(const char signOfAction, std::string nameRvalu1, s
         current2 = 0;
     } else if (isSimbol(nameRvalu2)) {
         current2 = nameRvalu2[1];
+    } else if (!temp && haveVariableInStaticVector(nameRvalu1)) {
+        std::string current = getValueHaveVariableStatic(nameRvalu1);
+        current1 = std::stod(rightValu("tivD", current, temp));
     } else if (haveVariable(nameRvalu2)) {
         std::string current = getValueHaveVariable(nameRvalu2);
         current2 = std::stod(rightValu("tivD", current, temp));
-    }  else if (!temp && haveVariableInStaticVector(nameRvalu1)) {
-        std::string current = getValueHaveVariableStatic(nameRvalu1);
-        current1 = std::stod(rightValu("tivD", current, temp));
     } else {
         std::cout << "an unknown variable has been displayed" << std::endl;
         abort();
@@ -462,9 +462,9 @@ double Parser::helpExpression(std::string str, bool temp) {
         current = 0.0000000;
     } else if (str[0] == '<' && str[2] == '>') {
         current = str[1];
-    } else if (haveVariable(str)) {
-        current = std::stod(rightValu("tivD", str, temp));
     } else if (!temp && haveVariableInStaticVector(str)) {
+        current = std::stod(rightValu("tivD", str, temp));
+    } else if (haveVariable(str)) {
         current = std::stod(rightValu("tivD", str, temp));
     } else {
         std::cout << "unknown variable" << std::endl;
@@ -501,7 +501,10 @@ void Parser::input(bool temp)
         std::cout << "syntax error ։ wrong entry" << std::endl;
         abort();
     } else if (m_token[1] == "<-") {
-        if (haveVariable(m_token[2])) {
+        if (!temp && haveVariableInStaticVector(m_token[2])) {
+            std::string current = cinRightValu(m_token[2]);
+            changeValue (m_token[2], current, temp);
+        } else if (haveVariable(m_token[2])) {
             std::string current = cinRightValu(m_token[2]);
             changeValue (m_token[2], current, temp);
         } else {
@@ -531,17 +534,6 @@ void Parser::output(bool temp)
             }
     } else if (isSimbol(m_token[2])) {
         std::cout << m_token[2][1] << std::endl;
-    } else if (haveVariable(m_token[2])) {
-        for (int i = 0; i < m_variable.size(); ++i) {
-            if (m_variable[i].variable == m_token[2]) {
-                if (isSimbol(m_variable[i].value)) {
-                    std::cout << (m_variable[i].value)[1] << std::endl;
-                } else {
-                    std::cout << m_variable[i].value << std::endl;
-                }
-                break;
-            }
-        }
     } else if (!temp && haveVariableInStaticVector(m_token[2])) {
         for (int i = 0; i < s_variable.size(); ++i) {
             if (s_variable[i].variable == m_token[2]) {
@@ -553,6 +545,17 @@ void Parser::output(bool temp)
                 break;
             }
         }
+    } else if (haveVariable(m_token[2])) {
+        for (int i = 0; i < m_variable.size(); ++i) {
+            if (m_variable[i].variable == m_token[2]) {
+                if (isSimbol(m_variable[i].value)) {
+                    std::cout << (m_variable[i].value)[1] << std::endl;
+                } else {
+                    std::cout << m_variable[i].value << std::endl;
+                }
+                break;
+            }
+        }
     } else {
         std::cout << "an unknown variable has been displayed" << std::endl;
     }
@@ -560,7 +563,7 @@ void Parser::output(bool temp)
 
 void Parser::variableStatement(bool temp)
 {
-    if (haveVariable (m_token[1])) {
+    if (temp && haveVariable (m_token[1])) {
         std::cout << "Repetition of variable name" << std::endl;
         abort();
     } else if (!temp && haveVariableInStaticVector(m_token[1])) {
