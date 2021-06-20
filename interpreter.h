@@ -16,11 +16,11 @@ public:
    ~Parser() = default;
 private:
     void pars_token();
-    void pars(bool temp = true);
-    void parsTemproryIfOrFor(int& index);
+    void pars(std::vector<Variable>& variable, bool temp = true);
+    void parsTemproryIfOrFor(int& index, std::vector<Variable>& m_variable);
     void input(bool temp = true);
     void output(bool temp = true);
-    void variableStatement(bool temp = true);
+    void variableStatement(std::vector<Variable>& m_variable, bool temp = true);
     void withoutTypeVariable(bool temp = true);
     void print();
 private:
@@ -51,7 +51,6 @@ private:
     std::vector<std::string> m_token;
     std::vector<std::string> temproryLine;
     static std::vector<Variable> s_variable;
-    std::vector<Variable> t_variable;
     std::fstream m_fstr;
     bool temprorybool = false;
-};
+}
