@@ -38,7 +38,7 @@ private:
     std::string calculate (const char signOfAction, std::string nameRvalu1, std::string nameRvalu2, bool temp = true);
     double helperOperations (const char, double, double);
     int indexCloseScope(int indexOpenScope);
-    std::string operation(int index);
+    std::string operation(int index, bool temp = true);
     double helpExpression(std::string str, bool temp = true);
     bool expression(std::string loperand, std::string operation, std::string roperand, bool temp = true);
     int operationSign() const;
