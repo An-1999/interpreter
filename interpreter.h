@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 
+#ifndef INTERPRETER_H
+#define INTERPRETER_H
 struct Variable
 {
     std::string type;
@@ -54,3 +56,4 @@ private:
     std::fstream m_fstr;
     bool temprorybool = false;
 }
+#endif INTERPRETER_H
